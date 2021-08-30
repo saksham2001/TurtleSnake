@@ -79,6 +79,8 @@ class TurtleHandler
         // Turtle Sequence
         std::vector<std::vector<float*>> sequence;
 
+        int caught = 0;
+
     public:
         TurtleHandler(ros::NodeHandle *nh) 
         {
@@ -112,6 +114,8 @@ class TurtleHandler
             turtle2_x = pose->x;
             turtle2_y = pose->y;
             turtle2_theta = pose->theta;
+
+            // ROS_WARN("2: x: %f, y: %f, theta: %f", turtle2_x, turtle2_y, turtle2_theta);
         }
 
         void turtle3_pose_callback(const turtlesim::Pose::ConstPtr& pose)
@@ -119,6 +123,8 @@ class TurtleHandler
             turtle3_x = pose->x;
             turtle3_y = pose->y;
             turtle3_theta = pose->theta;
+
+            // ROS_WARN("3: x: %f, y: %f, theta: %f", turtle3_x, turtle3_y, turtle3_theta);
         }
 
         void turtle4_pose_callback(const turtlesim::Pose::ConstPtr& pose)
@@ -126,6 +132,8 @@ class TurtleHandler
             turtle4_x = pose->x;
             turtle4_y = pose->y;
             turtle4_theta = pose->theta;
+
+            // ROS_WARN("4: x: %f, y: %f, theta: %f", turtle4_x, turtle4_y, turtle4_theta);
         }
 
         void turtle5_pose_callback(const turtlesim::Pose::ConstPtr& pose)
@@ -133,6 +141,8 @@ class TurtleHandler
             turtle5_x = pose->x;
             turtle5_y = pose->y;
             turtle5_theta = pose->theta;
+
+            // ROS_WARN("5: x: %f, y: %f, theta: %f", turtle5_x, turtle5_y, turtle5_theta);
         }
 
         float random_gen(float min, float max)
@@ -167,7 +177,7 @@ class TurtleHandler
 
         bool check_hit()
         {
-            if((euclidean_distance(turtle1_x, turtle1_y, turtle2_x, turtle2_y) <= 2.0) && (turtle2_flag == false))
+            if((euclidean_distance(turtle1_x, turtle1_y, turtle2_x, turtle2_y) <= 0.6) && (turtle2_flag == false))
             {
                 turtle2_flag = true;
 
@@ -175,8 +185,11 @@ class TurtleHandler
                 sequence.push_back(vec);
                 turtle2_at = sequence.size() - 1;
 
+                ROS_WARN("Turtle 2 caught...");
+                caught++;
+
                 return true;
-            } else if((euclidean_distance(turtle1_x, turtle1_y, turtle3_x, turtle3_y) <= 2.0) && (turtle3_flag == false))
+            } else if((euclidean_distance(turtle1_x, turtle1_y, turtle3_x, turtle3_y) <= 0.6) && (turtle3_flag == false))
             {
                 turtle3_flag = true;
 
@@ -184,8 +197,11 @@ class TurtleHandler
                 sequence.push_back(vec);
                 turtle3_at = sequence.size() - 1;
 
+                ROS_WARN("Turtle 3 caught...");
+                caught++;
+
                 return true;
-            } else if((euclidean_distance(turtle1_x, turtle1_y, turtle4_x, turtle4_y) <= 2.0) && (turtle4_flag == false))
+            } else if((euclidean_distance(turtle1_x, turtle1_y, turtle4_x, turtle4_y) <= 0.6) && (turtle4_flag == false))
             {
                 turtle4_flag = true;
 
@@ -193,14 +209,20 @@ class TurtleHandler
                 sequence.push_back(vec);
                 turtle4_at = sequence.size() - 1;
 
+                ROS_WARN("Turtle 4 caught...");
+                caught++;
+
                 return true;
-            } else if((euclidean_distance(turtle1_x, turtle1_y, turtle5_x, turtle5_y) <= 2.0) && (turtle5_flag == false))
+            } else if((euclidean_distance(turtle1_x, turtle1_y, turtle5_x, turtle5_y) <= 0.6) && (turtle5_flag == false))
             {
                 turtle5_flag = true;
 
                 std::vector<float*> vec {&turtle5_x, &turtle5_y, &turtle5_theta};
                 sequence.push_back(vec);
                 turtle5_at = sequence.size() - 1;
+
+                ROS_WARN("Turtle 5 caught...");
+                caught++;
 
                 return true;
             }
@@ -217,7 +239,7 @@ class TurtleHandler
 
             if (turtle2_flag == true)
             {   
-                std::vector<float*> vec = sequence.at(turtle2_at);
+                std::vector<float*> vec = sequence.at(turtle2_at-1);
 
                 float turtleg_x = *(vec.at(0));
                 float turtleg_y = *(vec.at(1));
@@ -225,15 +247,15 @@ class TurtleHandler
 
                 if ((euclidean_distance(turtleg_x, turtleg_y, turtle2_x, turtle2_y) >= 0.01))
                 {
-                    turtle2_vel.linear.x = linear_vel(turtleg_x, turtleg_y, turtle2_x, turtle2_y, 1.0);
+                    turtle2_vel.linear.x = linear_vel(turtleg_x, turtleg_y, turtle2_x, turtle2_y, 1.5);
                     turtle2_vel.linear.y = 0;
                     turtle2_vel.linear.z = 0;
 
                     turtle2_vel.angular.x = 0;
                     turtle2_vel.angular.y = 0;
-                    turtle2_vel.angular.z = angular_vel(turtleg_x, turtleg_y, turtle2_x, turtle2_y, turtle2_theta, 6.0);
+                    turtle2_vel.angular.z = angular_vel(turtleg_x, turtleg_y, turtle2_x, turtle2_y, turtle2_theta, 4.0);
 
-                   ROS_WARN("turtle2_x: %f, turtle2_y: %f", turtle2_x, turtle2_y);
+                    // ROS_WARN("turtle2_x: %f, turtle2_y: %f", turtle2_x, turtle2_y);
                 } else 
                 {
                     turtle2_vel.linear.x = 0;
@@ -250,7 +272,7 @@ class TurtleHandler
 
             if (turtle3_flag == true)
             {
-                std::vector<float*> vec = sequence.at(turtle3_at);
+                std::vector<float*> vec = sequence.at(turtle3_at-1);
 
                 float turtleg_x = *(vec.at(0));
                 float turtleg_y = *(vec.at(1));
@@ -258,7 +280,7 @@ class TurtleHandler
 
                 if ((euclidean_distance(turtleg_x, turtleg_y, turtle3_x, turtle3_y) >= 0.01) && turtle3_flag == true)
                 {
-                    turtle3_vel.linear.x = linear_vel(turtleg_x, turtleg_y, turtle3_x, turtle3_y, 1.0);
+                    turtle3_vel.linear.x = linear_vel(turtleg_x, turtleg_y, turtle3_x, turtle3_y, 1.5);
                     turtle3_vel.linear.y = 0;
                     turtle3_vel.linear.z = 0;
 
@@ -266,7 +288,7 @@ class TurtleHandler
                     turtle3_vel.angular.y = 0;
                     turtle3_vel.angular.z = angular_vel(turtleg_x, turtleg_y, turtle3_x, turtle3_y, turtle3_theta, 6.0);
 
-                    ROS_WARN("turtle3_x: %f, turtle3_y: %f", turtle3_x, turtle3_y);
+                    // ROS_WARN("turtle3_x: %f, turtle3_y: %f", turtle3_x, turtle3_y);
                 } else 
                 {
                     turtle3_vel.linear.x = 0;
@@ -283,7 +305,7 @@ class TurtleHandler
 
             if (turtle4_flag == true)
             {
-                std::vector<float*> vec = sequence.at(turtle4_at);
+                std::vector<float*> vec = sequence.at(turtle4_at-1);
 
                 float turtleg_x = *(vec.at(0));
                 float turtleg_y = *(vec.at(1));
@@ -291,7 +313,7 @@ class TurtleHandler
 
                 if ((euclidean_distance(turtleg_x, turtleg_y, turtle4_x, turtle4_y) >= 0.01) && turtle4_flag == true)
                 {
-                    turtle4_vel.linear.x = linear_vel(turtleg_x, turtleg_y, turtle4_x, turtle4_y, 1.0);
+                    turtle4_vel.linear.x = linear_vel(turtleg_x, turtleg_y, turtle4_x, turtle4_y, 1.5);
                     turtle4_vel.linear.y = 0;
                     turtle4_vel.linear.z = 0;
 
@@ -299,7 +321,7 @@ class TurtleHandler
                     turtle4_vel.angular.y = 0;
                     turtle4_vel.angular.z = angular_vel(turtleg_x, turtleg_y, turtle4_x, turtle4_y, turtle4_theta, 6.0);
 
-                    ROS_WARN("turtle4_x: %f, turtle4_y: %f", turtle4_x, turtle4_y);
+                    // ROS_WARN("turtle4_x: %f, turtle4_y: %f", turtle4_x, turtle4_y);
                 } else 
                 {
                     turtle4_vel.linear.x = 0;
@@ -316,7 +338,7 @@ class TurtleHandler
 
             if (turtle5_flag == true)
             {
-                std::vector<float*> vec = sequence.at(turtle5_at);
+                std::vector<float*> vec = sequence.at(turtle5_at-1);
 
                 float turtleg_x = *(vec.at(0));
                 float turtleg_y = *(vec.at(1));
@@ -324,7 +346,7 @@ class TurtleHandler
 
                 if ((euclidean_distance(turtleg_x, turtleg_y, turtle5_x, turtle5_y) >= 0.01) && turtle5_flag == true)
                 {
-                    turtle5_vel.linear.x = linear_vel(turtleg_x, turtleg_y, turtle5_x, turtle5_y, 1.0);
+                    turtle5_vel.linear.x = linear_vel(turtleg_x, turtleg_y, turtle5_x, turtle5_y, 1.5);
                     turtle5_vel.linear.y = 0;
                     turtle5_vel.linear.z = 0;
 
@@ -332,7 +354,8 @@ class TurtleHandler
                     turtle5_vel.angular.y = 0;
                     turtle5_vel.angular.z = angular_vel(turtleg_x, turtleg_y, turtle5_x, turtle5_y, turtle5_theta, 6.0);
 
-                    ROS_WARN("turtle5_x: %f, turtle5_y: %f", turtle5_x, turtle5_y);
+
+                    // ROS_WARN("turtle5_x: %f, turtle5_y: %f", turtle5_x, turtle5_y);
                 } else 
                 {
                     turtle5_vel.linear.x = 0;
@@ -420,7 +443,7 @@ class TurtleHandler
 
         void run()
         {
-            ros::Rate rate(2); 
+            ros::Rate rate(30); 
 
             for(int i=0; i<5; i++)
             {
@@ -431,14 +454,18 @@ class TurtleHandler
             {
                 ros::spinOnce();
 
-                ROS_WARN("x: %f, y: %f", turtle1_x, turtle1_y);
-
                 bool flag = check_hit();
 
                 controller();
 
                 rate.sleep();
+
+                if(caught==4){
+                    break;
+                }
             }
+
+            game_over_graphics();
         }
 
 };
